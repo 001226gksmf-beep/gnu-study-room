@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<!-- saved from url=(0088)file:///C:/Users/00122/Documents/Codex/2026-05-22/ui-ux-0-1-firebase-realtime/index.html -->
+<html lang="ko"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>음악교육과 정독실 좌석 예약</title>
+  <script src="./음악교육과 정독실 좌석 예약_files/html5-qrcode" defer=""></script>
+  <style>
+    @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css");
+
+    :root {
+      --bg: #f6f8fb;
+      --card: #ffffff;
+      --ink: #17191f;
+      --muted: #747985;
+      --line: #e7ebf2;
+      --blue: #3182f6;
+      --blue-soft: #eaf3ff;
+      --closed: #d8dde6;
+      --ok: #14b86a;
+      --warn: #fff7ed;
+      --shadow: 0 16px 40px rgba(20, 30, 50, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(49, 130, 246, 0.13), transparent 34rem),
+        var(--bg);
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .app {
+      width: min(100%, 520px);
+      margin: 0 auto;
+      padding: 18px 16px 34px;
+    }
+
+    .hero {
+      padding: 16px 2px 18px;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+      line-height: 1.18;
+    }
+
+    .copy {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    .section {
+      margin-top: 14px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+    }
+
+    .title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .title h2 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .badge {
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: var(--blue-soft);
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .field label {
+      color: #303541;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    input[type="date"],
+    input[type="text"] {
+      width: 100%;
+      min-height: 48px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fbfcfe;
+      color: var(--ink);
+      padding: 0 14px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: rgba(49, 130, 246, 0.72);
+      box-shadow: 0 0 0 4px rgba(49, 130, 246, 0.12);
+    }
+
+    .room {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-areas:
+        "topLeft topRight"
+        "midLeft midRight"
+        "entrance bottomRight";
+      gap: 58px 42px;
+      min-height: 390px;
+      padding: 22px 8px 18px;
+      border: 1px solid #e6ebf3;
+      border-radius: 18px;
+      background: #fbfcff;
+    }
+
+    .zone {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0;
+      align-content: start;
+      overflow: hidden;
+      border: 3px solid #303030;
+      border-radius: 4px;
+      background: #ffffff;
+      box-shadow: 0 10px 24px rgba(20, 30, 50, 0.05);
+    }
+
+    .zone--top-left { grid-area: topLeft; }
+    .zone--top-right { grid-area: topRight; }
+    .zone--middle-left { grid-area: midLeft; }
+    .zone--middle-right { grid-area: midRight; }
+    .zone--bottom-right {
+      grid-area: bottomRight;
+      align-self: end;
+    }
+
+    .seat {
+      aspect-ratio: 1.08 / 1;
+      min-width: 0;
+      border: 0;
+      border-right: 3px solid #303030;
+      border-radius: 0;
+      background: #ffffff;
+      color: #303030;
+      font-size: clamp(18px, 5vw, 28px);
+      font-weight: 900;
+      cursor: pointer;
+      transition: transform 0.16s ease, background 0.16s ease, color 0.16s ease;
+    }
+
+    .seat:nth-child(4n) {
+      border-right: 0;
+    }
+
+    .seat:active {
+      transform: scale(0.96);
+    }
+
+    .seat.is-selected {
+      background: var(--blue);
+      color: #ffffff;
+    }
+
+    .seat.is-partial {
+      background: #effdf6;
+    }
+
+    .seat.is-full {
+      cursor: not-allowed;
+      background: var(--closed);
+      color: #858b96;
+      text-decoration: line-through;
+    }
+
+    .entrance-mark {
+      position: relative;
+      grid-area: entrance;
+      align-self: start;
+      width: 66px;
+      height: 86px;
+      margin-top: -10px;
+    }
+
+    .entrance-mark::before {
+      content: "";
+      position: absolute;
+      left: -8px;
+      top: 8px;
+      width: 58px;
+      height: 58px;
+      border-top: 4px solid #303030;
+      border-right: 4px solid #303030;
+      border-bottom: 4px solid #303030;
+      border-left: 0;
+      border-radius: 0 3px 3px 0;
+    }
+
+    .entrance-mark span {
+      position: absolute;
+      left: 0;
+      top: 31px;
+      color: #303030;
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .legend {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 1px solid #cfd7e4;
+    }
+
+    .dot--selected { background: var(--blue); border-color: var(--blue); }
+    .dot--closed { background: var(--closed); border-color: var(--closed); }
+    .dot--partial { background: #effdf6; border-color: #78d9aa; }
+
+    .time-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .time-btn {
+      min-height: 44px;
+      border: 1px solid #dce3ee;
+      border-radius: 14px;
+      background: #fbfcfe;
+      color: #303541;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .time-btn.is-selected {
+      color: #ffffff;
+      background: var(--blue);
+      border-color: var(--blue);
+    }
+
+    .time-btn:disabled {
+      cursor: not-allowed;
+      color: #9aa1ad;
+      background: #eceff4;
+      border-color: #e2e6ed;
+    }
+
+    .notice {
+      margin-top: 12px;
+      padding: 13px;
+      border-radius: 16px;
+      background: var(--warn);
+      color: #8a4b12;
+      border: 1px solid #fed7aa;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .agree {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      margin-top: 12px;
+      font-size: 14px;
+      line-height: 1.45;
+      font-weight: 700;
+    }
+
+    .agree input {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--blue);
+      margin-top: 1px;
+    }
+
+    .summary {
+      display: grid;
+      gap: 7px;
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #f8fafc;
+      color: #3b4350;
+      font-size: 14px;
+    }
+
+    .summary strong {
+      color: var(--ink);
+    }
+
+    .primary {
+      width: 100%;
+      min-height: 54px;
+      margin-top: 14px;
+      border: 0;
+      border-radius: 16px;
+      background: var(--blue);
+      color: #ffffff;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 14px 24px rgba(49, 130, 246, 0.25);
+    }
+
+    .primary:disabled {
+      cursor: not-allowed;
+      background: #c4cad4;
+      box-shadow: none;
+    }
+
+    .scanner {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      display: none;
+      place-items: center;
+      padding: 20px 16px;
+      background: rgba(12, 17, 27, 0.72);
+      backdrop-filter: blur(14px);
+    }
+
+    .scanner.is-open {
+      display: grid;
+    }
+
+    .scanner-panel {
+      width: min(100%, 440px);
+      padding: 18px;
+      border-radius: 24px;
+      background: #10151f;
+      color: #ffffff;
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.38);
+    }
+
+    .scanner-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .scanner-head h2 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .scanner-head p {
+      margin: 7px 0 0;
+      color: #aab4c4;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .close {
+      width: 36px;
+      height: 36px;
+      border: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+      font-size: 22px;
+      cursor: pointer;
+    }
+
+    .reader-wrap {
+      position: relative;
+      overflow: hidden;
+      margin-top: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 20px;
+      background: #06080d;
+    }
+
+    #reader {
+      min-height: 280px;
+    }
+
+    #reader video {
+      border-radius: 20px;
+    }
+
+    .laser {
+      position: absolute;
+      left: 10%;
+      right: 10%;
+      top: 24%;
+      height: 3px;
+      border-radius: 999px;
+      background: #21f090;
+      box-shadow: 0 0 16px rgba(33, 240, 144, 0.95);
+      animation: scan 1.8s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes scan {
+      0%, 100% { transform: translateY(0); opacity: 0.45; }
+      50% { transform: translateY(150px); opacity: 1; }
+    }
+
+    .link {
+      border: 0;
+      background: transparent;
+      color: #75adff;
+      padding: 10px 0 0;
+      font-weight: 850;
+      cursor: pointer;
+    }
+
+    .manual {
+      display: none;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .manual.is-open {
+      display: grid;
+    }
+
+    .manual input {
+      border-color: rgba(255, 255, 255, 0.18);
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+    }
+
+    .manual button {
+      min-height: 48px;
+      border: 0;
+      border-radius: 14px;
+      background: var(--ok);
+      color: #ffffff;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      z-index: 20;
+      width: min(calc(100% - 32px), 460px);
+      padding: 13px 15px;
+      border-radius: 16px;
+      background: #151922;
+      color: #ffffff;
+      font-size: 14px;
+      line-height: 1.45;
+      opacity: 0;
+      transform: translateX(-50%) translateY(80px);
+      transition: 0.22s ease;
+      box-shadow: 0 16px 42px rgba(0, 0, 0, 0.22);
+    }
+
+    .toast.is-show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (min-width: 460px) {
+      .time-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    @media (max-width: 430px) {
+      .room {
+        gap: 46px 24px;
+        min-height: 340px;
+        padding-inline: 2px;
+      }
+
+      .zone {
+        border-width: 2px;
+      }
+
+      .seat {
+        border-right-width: 2px;
+        font-size: clamp(15px, 5vw, 22px);
+      }
+
+      .entrance-mark::before {
+        border-width: 3px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="hero">
+      <p class="eyebrow">GNU 음악교육과 학생회</p>
+      <h1>방학 정독실<br>좌석 예약</h1>
+      <p class="copy">날짜와 좌석, 최대 4시간의 연속 시간을 선택한 뒤 현장 QR 인증으로 예약을 확정해 주세요.</p>
+    </header>
+
+    <section class="section">
+      <div class="title">
+        <h2>예약 날짜</h2>
+        <span class="badge" id="openBadge">06:00 오픈</span>
+      </div>
+      <div class="field">
+        <label for="dateInput">날짜 선택</label>
+        <input id="dateInput" type="date">
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="title">
+        <h2>좌석 선택</h2>
+        <span class="badge">총 20석</span>
+      </div>
+      <div class="room" aria-label="정독실 좌석 배치도">
+        <div class="zone zone--top-left" data-zone="1,2,3,4"><button type="button" class="seat">1</button><button type="button" class="seat">2</button><button type="button" class="seat">3</button><button type="button" class="seat">4</button></div>
+        <div class="zone zone--top-right" data-zone="5,6,7,8"><button type="button" class="seat">5</button><button type="button" class="seat">6</button><button type="button" class="seat">7</button><button type="button" class="seat">8</button></div>
+        <div class="zone zone--middle-left" data-zone="9,10,11,12"><button type="button" class="seat">9</button><button type="button" class="seat">10</button><button type="button" class="seat">11</button><button type="button" class="seat">12</button></div>
+        <div class="zone zone--middle-right" data-zone="13,14,15,16"><button type="button" class="seat">13</button><button type="button" class="seat">14</button><button type="button" class="seat">15</button><button type="button" class="seat">16</button></div>
+        <div class="entrance-mark"><span>입구</span></div>
+        <div class="zone zone--bottom-right" data-zone="17,18,19,20"><button type="button" class="seat">17</button><button type="button" class="seat">18</button><button type="button" class="seat">19</button><button type="button" class="seat">20</button></div>
+      </div>
+      <div class="legend">
+        <span><i class="dot"></i>예약 가능</span>
+        <span><i class="dot dot--partial"></i>일부 예약</span>
+        <span><i class="dot dot--selected"></i>선택</span>
+        <span><i class="dot dot--closed"></i>선택 시간 마감</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="title">
+        <h2>시간 선택</h2>
+        <span class="badge">최대 4시간</span>
+      </div>
+      <div class="time-grid" id="timeGrid"><button type="button" class="time-btn" disabled="">06:00</button><button type="button" class="time-btn" disabled="">07:00</button><button type="button" class="time-btn" disabled="">08:00</button><button type="button" class="time-btn" disabled="">09:00</button><button type="button" class="time-btn" disabled="">10:00</button><button type="button" class="time-btn" disabled="">11:00</button><button type="button" class="time-btn" disabled="">12:00</button><button type="button" class="time-btn" disabled="">13:00</button><button type="button" class="time-btn" disabled="">14:00</button><button type="button" class="time-btn" disabled="">15:00</button><button type="button" class="time-btn" disabled="">16:00</button><button type="button" class="time-btn" disabled="">17:00</button><button type="button" class="time-btn" disabled="">18:00</button><button type="button" class="time-btn" disabled="">19:00</button><button type="button" class="time-btn" disabled="">20:00</button><button type="button" class="time-btn" disabled="">21:00</button><button type="button" class="time-btn" disabled="">22:00</button></div>
+      <div class="notice">이미 예약된 시간은 회색으로 표시됩니다. 한 번에 4시간을 초과하거나, 끊어진 시간대를 선택할 수 없습니다.</div>
+    </section>
+
+    <section class="section">
+      <div class="title">
+        <h2>이용 수칙</h2>
+        <span class="badge">필수 동의</span>
+      </div>
+      <div class="notice">무단 점유, 대리 예약, 장시간 이석, 음식물 반입 등은 학생회 운영 기준에 따라 벌점 또는 이용 제한이 적용될 수 있습니다.</div>
+      <label class="agree">
+        <input id="agreeInput" type="checkbox">
+        <span>정독실 이용 수칙과 벌점 안내를 확인했으며 이에 동의합니다.</span>
+      </label>
+    </section>
+
+    <section class="section">
+      <div class="title">
+        <h2>예약 확인</h2>
+        <span class="badge" id="statusBadge">대기 중</span>
+      </div>
+      <div class="summary" id="summary">
+        <div>날짜: <strong>2026-05-22</strong></div>
+        <div>좌석: <strong>좌석을 선택해 주세요</strong></div>
+        <div>시간: <strong>시간을 선택해 주세요</strong></div>
+      </div>
+      <button class="primary" id="reserveBtn" type="button" disabled="">QR 스캔하고 확정하기</button>
+    </section>
+  </main>
+
+  <div class="scanner" id="scannerLayer">
+    <div class="scanner-panel">
+      <div class="scanner-head">
+        <div>
+          <h2>좌석 QR 인증</h2>
+          <p id="scannerHint">선택한 좌석에 붙은 QR코드를 카메라 중앙에 맞춰 주세요.</p>
+        </div>
+        <button class="close" id="closeScannerBtn" type="button">×</button>
+      </div>
+      <div class="reader-wrap">
+        <div id="reader"></div>
+        <div class="laser"></div>
+      </div>
+      <button class="link" id="manualToggleBtn" type="button">카메라가 안 켜지시나요?</button>
+      <div class="manual" id="manualBox">
+        <input id="manualInput" type="text" placeholder="예: GNU_STUDY_9번 좌석" autocomplete="off">
+        <button id="manualSubmitBtn" type="button">수동 인증하고 예약 확정</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+    import { getDatabase, ref, onValue, runTransaction, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBtrF0bSbdNke1ds3IHnG_7ieBfdg2BLsg",
+      authDomain: "asdf-fb8d0.firebaseapp.com",
+      databaseURL: "https://asdf-fb8d0-default-rtdb.firebaseio.com",
+      projectId: "asdf-fb8d0",
+      storageBucket: "asdf-fb8d0.firebasestorage.app",
+      messagingSenderId: "435842452549",
+      appId: "1:435842452549:web:77ced7a907664660c5a72c",
+      measurementId: "G-VGPMGKNH8E"
+    };
+
+    const hours = Array.from({ length: 17 }, (_, index) => index + 6);
+    const state = {
+      date: "",
+      seat: null,
+      selectedHours: [],
+      reservations: {},
+      scanner: null,
+      scannerPaused: false,
+      firebaseReady: !Object.values(firebaseConfig).some((value) => String(value).includes("여기에"))
+    };
+
+    const app = state.firebaseReady ? initializeApp(firebaseConfig) : null;
+    const db = state.firebaseReady ? getDatabase(app) : null;
+
+    const $ = (selector) => document.querySelector(selector);
+    const $$ = (selector) => document.querySelectorAll(selector);
+    const dateInput = $("#dateInput");
+    const timeGrid = $("#timeGrid");
+    const agreeInput = $("#agreeInput");
+    const reserveBtn = $("#reserveBtn");
+    const summary = $("#summary");
+    const statusBadge = $("#statusBadge");
+    const scannerLayer = $("#scannerLayer");
+    const manualBox = $("#manualBox");
+    const manualInput = $("#manualInput");
+    const toastEl = $("#toast");
+
+    function todayKey() {
+      const now = new Date();
+      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+    }
+
+    function hourLabel(hour) {
+      return `${String(hour).padStart(2, "0")}:00`;
+    }
+
+    function selectedSeatName() {
+      return state.seat ? `${state.seat}번 좌석` : "";
+    }
+
+    function expectedQrText() {
+      return `GNU_STUDY_${selectedSeatName()}`;
+    }
+
+    function showToast(message) {
+      toastEl.textContent = message;
+      toastEl.classList.add("is-show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => toastEl.classList.remove("is-show"), 2600);
+    }
+
+    function isTodayBlocked() {
+      const now = new Date();
+      return state.date === todayKey() && now.getHours() < 6;
+    }
+
+    function getBookedHoursForSeat(seat) {
+      const seatData = state.reservations?.[seat] || {};
+      return Object.keys(seatData).map(Number);
+    }
+
+    function isHourBooked(seat, hour) {
+      return getBookedHoursForSeat(seat).includes(hour);
+    }
+
+    function hasAnyOverlap(seat, selectedHours) {
+      return selectedHours.some((hour) => isHourBooked(seat, hour));
+    }
+
+    function isContiguous(nextHours) {
+      const sorted = [...nextHours].sort((a, b) => a - b);
+      return sorted.every((hour, index) => index === 0 || hour === sorted[index - 1] + 1);
+    }
+
+    function renderSeats() {
+      $$(".zone").forEach((zone) => {
+        zone.innerHTML = "";
+        zone.dataset.zone.split(",").map(Number).forEach((seat) => {
+          const bookedHours = getBookedHoursForSeat(seat);
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "seat";
+          button.textContent = seat;
+
+          if (state.seat === seat) button.classList.add("is-selected");
+          if (bookedHours.length > 0 && bookedHours.length < hours.length) button.classList.add("is-partial");
+          if (state.selectedHours.length > 0 && hasAnyOverlap(seat, state.selectedHours)) {
+            button.classList.add("is-full");
+            button.disabled = true;
+          }
+
+          button.addEventListener("click", () => {
+            state.seat = seat;
+            renderAll();
+          });
+
+          zone.appendChild(button);
+        });
+      });
+    }
+
+    function renderTimes() {
+      timeGrid.innerHTML = "";
+      hours.forEach((hour) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "time-btn";
+        button.textContent = hourLabel(hour);
+
+        const selected = state.selectedHours.includes(hour);
+        if (selected) button.classList.add("is-selected");
+        if (!state.seat || isHourBooked(state.seat, hour) || isTodayBlocked()) button.disabled = true;
+
+        button.addEventListener("click", () => {
+          const nextHours = selected
+            ? state.selectedHours.filter((item) => item !== hour)
+            : [...state.selectedHours, hour];
+
+          if (nextHours.length > 4) {
+            showToast("한 번에 최대 4시간까지만 선택할 수 있어요.");
+            return;
+          }
+
+          if (!isContiguous(nextHours)) {
+            showToast("시간은 끊기지 않게 연속으로만 선택해 주세요.");
+            return;
+          }
+
+          state.selectedHours = nextHours.sort((a, b) => a - b);
+          renderAll();
+        });
+
+        timeGrid.appendChild(button);
+      });
+    }
+
+    function canProceed() {
+      return Boolean(state.date && state.seat && state.selectedHours.length && agreeInput.checked && !isTodayBlocked());
+    }
+
+    function renderSummary() {
+      const timeText = state.selectedHours.length
+        ? `${hourLabel(state.selectedHours[0])} ~ ${hourLabel(state.selectedHours[state.selectedHours.length - 1] + 1)} (${state.selectedHours.length}시간)`
+        : "시간을 선택해 주세요";
+
+      summary.innerHTML = `
+        <div>날짜: <strong>${state.date}</strong></div>
+        <div>좌석: <strong>${selectedSeatName() || "좌석을 선택해 주세요"}</strong></div>
+        <div>시간: <strong>${timeText}</strong></div>
+      `;
+
+      statusBadge.textContent = isTodayBlocked() ? "06:00 전 예약 불가" : canProceed() ? "인증 가능" : "대기 중";
+      reserveBtn.disabled = !canProceed();
+    }
+
+    function renderAll() {
+      renderSeats();
+      renderTimes();
+      renderSummary();
+    }
+
+    function subscribeToDate(date) {
+      if (!state.firebaseReady) {
+        renderAll();
+        return;
+      }
+
+      onValue(ref(db, `reservations/${date}/seats`), (snapshot) => {
+        state.reservations = snapshot.val() || {};
+        if (state.seat) {
+          state.selectedHours = state.selectedHours.filter((hour) => !isHourBooked(state.seat, hour));
+        }
+        renderAll();
+      });
+    }
+
+    function validateBeforeScan() {
+      if (isTodayBlocked()) {
+        showToast("오늘 예약은 오전 6시 이후부터 가능해요.");
+        return false;
+      }
+      if (!state.seat) {
+        showToast("좌석을 먼저 선택해 주세요.");
+        return false;
+      }
+      if (!state.selectedHours.length) {
+        showToast("예약 시간을 선택해 주세요.");
+        return false;
+      }
+      if (!agreeInput.checked) {
+        showToast("이용 수칙 동의가 필요해요.");
+        return false;
+      }
+      return true;
+    }
+
+    async function openScanner() {
+      if (!validateBeforeScan()) return;
+      scannerLayer.classList.add("is-open");
+      $("#scannerHint").textContent = `${expectedQrText()} QR코드를 인증해 주세요.`;
+
+      if (!window.Html5Qrcode) {
+        showToast("QR 스캐너를 불러오는 중입니다. 잠시 후 다시 눌러 주세요.");
+        return;
+      }
+
+      try {
+        state.scanner = new Html5Qrcode("reader");
+        await state.scanner.start(
+          { facingMode: "environment" },
+          { fps: 10, qrbox: { width: 230, height: 230 } },
+          onScanSuccess,
+          () => {}
+        );
+      } catch (error) {
+        showToast("카메라를 열 수 없어요. 수동 인증을 이용해 주세요.");
+        manualBox.classList.add("is-open");
+      }
+    }
+
+    async function closeScanner() {
+      if (state.scanner) {
+        try {
+          await state.scanner.stop();
+          await state.scanner.clear();
+        } catch (error) {}
+      }
+      state.scanner = null;
+      state.scannerPaused = false;
+      scannerLayer.classList.remove("is-open");
+    }
+
+    async function onScanSuccess(decodedText) {
+      if (state.scannerPaused) return;
+      if (decodedText.trim() !== expectedQrText()) {
+        state.scannerPaused = true;
+        showToast(`선택한 좌석의 QR이 아니에요. 필요한 코드: ${expectedQrText()}`);
+        window.setTimeout(() => {
+          state.scannerPaused = false;
+        }, 1500);
+        return;
+      }
+      await confirmReservation();
+    }
+
+    async function confirmReservation() {
+      if (!validateBeforeScan()) return;
+
+      if (!state.firebaseReady) {
+        showToast("미리보기 모드입니다. Firebase 설정값을 넣으면 실제 저장됩니다.");
+        await closeScanner();
+        return;
+      }
+
+      const seatRef = ref(db, `reservations/${state.date}/seats/${state.seat}`);
+      const result = await runTransaction(seatRef, (current) => {
+        current = current || {};
+        if (state.selectedHours.some((hour) => current[hour])) return;
+        state.selectedHours.forEach((hour) => {
+          current[hour] = {
+            seat: state.seat,
+            seatName: selectedSeatName(),
+            hour,
+            createdAt: serverTimestamp()
+          };
+        });
+        return current;
+      });
+
+      if (!result.committed) {
+        showToast("방금 다른 사용자가 같은 시간대를 예약했어요.");
+        return;
+      }
+
+      showToast("예약이 확정되었습니다.");
+      await closeScanner();
+      state.selectedHours = [];
+      renderAll();
+    }
+
+    dateInput.addEventListener("change", () => {
+      state.date = dateInput.value;
+      state.seat = null;
+      state.selectedHours = [];
+      subscribeToDate(state.date);
+      renderAll();
+    });
+
+    agreeInput.addEventListener("change", renderSummary);
+    reserveBtn.addEventListener("click", openScanner);
+    $("#closeScannerBtn").addEventListener("click", closeScanner);
+    $("#manualToggleBtn").addEventListener("click", () => manualBox.classList.toggle("is-open"));
+    $("#manualSubmitBtn").addEventListener("click", async () => {
+      if (manualInput.value.trim() !== expectedQrText()) {
+        showToast("암호가 일치하지 않아요.");
+        return;
+      }
+      await confirmReservation();
+    });
+
+    dateInput.value = todayKey();
+    state.date = dateInput.value;
+    subscribeToDate(state.date);
+    renderAll();
+  </script>
+
+
+</body></html>
